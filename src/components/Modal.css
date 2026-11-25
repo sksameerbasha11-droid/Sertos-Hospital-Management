@@ -1,0 +1,238 @@
+/* Global Modal & Toast Styles */
+.sertos-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.52);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 1000;
+}
+
+.sertos-modal {
+  background: #FFFFFF;
+  border-radius: 14px;
+  border: 1px solid #E5EAF0;
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18);
+  width: 100%;
+  max-width: 540px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sertos-modal.modal-lg {
+  max-width: 720px;
+}
+
+.sertos-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  border-bottom: 1px solid #E5EAF0;
+  background: #FFFFFF;
+}
+
+.sertos-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #17212B;
+  margin: 0;
+}
+
+.sertos-modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #F4F7F8;
+  color: #64748B;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.sertos-modal-close:hover {
+  background: #E5EAF0;
+  color: #17212B;
+}
+
+.sertos-modal-body {
+  padding: 20px 22px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sertos-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 22px;
+  border-top: 1px solid #E5EAF0;
+  background: #F8FAFB;
+}
+
+.sertos-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.15s;
+}
+
+.sertos-btn-primary {
+  background: #087F5B;
+  color: #FFFFFF;
+}
+
+.sertos-btn-primary:hover {
+  background: #065F46;
+}
+
+.sertos-btn-secondary {
+  background: #FFFFFF;
+  color: #475569;
+  border: 1px solid #E5EAF0;
+}
+
+.sertos-btn-secondary:hover {
+  background: #F4F7F8;
+  color: #17212B;
+}
+
+.sertos-btn-danger {
+  background: #DC2626;
+  color: #FFFFFF;
+}
+
+.sertos-btn-danger:hover {
+  background: #B91C1C;
+}
+
+.sertos-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sertos-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.sertos-form-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.sertos-form-control {
+  padding: 9px 12px;
+  border: 1px solid #E5EAF0;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #17212B;
+  background: #FFFFFF;
+}
+
+.sertos-form-control:focus {
+  border-color: #087F5B;
+  box-shadow: 0 0 0 3px rgba(8, 127, 91, 0.1);
+}
+
+/* Code Blue Banner */
+.code-blue-banner {
+  background: #DC2626;
+  color: #FFFFFF;
+  padding: 10px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.code-blue-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.code-blue-clear-btn {
+  background: rgba(255, 255, 255, 0.18);
+  color: #FFFFFF;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.code-blue-clear-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Toast Notifications */
+.sertos-toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 1100;
+  pointer-events: none;
+}
+
+.sertos-toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: #17212B;
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
+  pointer-events: auto;
+  min-width: 260px;
+  max-width: 380px;
+}
+
+.sertos-toast.toast-success {
+  border-left: 4px solid #16A34A;
+}
+
+.sertos-toast.toast-warning {
+  border-left: 4px solid #F59E0B;
+}
+
+.sertos-toast.toast-error {
+  border-left: 4px solid #DC2626;
+}
+
+.sertos-toast.toast-info {
+  border-left: 4px solid #2563EB;
+}
+
+@media (max-width: 640px) {
+  .sertos-form-row {
+    grid-template-columns: 1fr;
+  }
+}

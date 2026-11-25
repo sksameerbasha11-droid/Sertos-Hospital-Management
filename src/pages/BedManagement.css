@@ -1,0 +1,491 @@
+/* ========================================
+   Bed Management Page (Scoped)
+   ======================================== */
+
+.bed-management-page {
+  background: #F4F7F8;
+}
+
+/* ---------- Header ---------- */
+
+.bed-management-page .bed-management-header {
+  margin-bottom: 24px;
+}
+
+.bed-management-page .page-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #17212B;
+  margin: 0 0 4px 0;
+}
+
+.bed-management-page .page-subtitle {
+  font-size: 14px;
+  color: #64748B;
+  margin: 0;
+}
+
+/* ---------- Top Stats ---------- */
+
+.bed-management-page .bed-stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.bed-management-page .bed-stat-card {
+  background: #FFFFFF;
+  border: 1px solid #E5EAF0;
+  border-radius: 12px;
+  padding: 20px 22px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.2s;
+}
+
+.bed-management-page .bed-stat-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
+}
+
+.bed-management-page .bed-stat-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.bed-management-page .stat-total .bed-stat-icon-wrap {
+  background: #EEF2F5;
+  color: #475569;
+}
+
+.bed-management-page .stat-available .bed-stat-icon-wrap {
+  background: #DCFCE7;
+  color: #16A34A;
+}
+
+.bed-management-page .stat-occupied .bed-stat-icon-wrap {
+  background: #DBEAFE;
+  color: #2563EB;
+}
+
+.bed-management-page .stat-maintenance .bed-stat-icon-wrap {
+  background: #FEF3C7;
+  color: #D97706;
+}
+
+.bed-management-page .bed-stat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.bed-management-page .bed-stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #17212B;
+  line-height: 1.1;
+}
+
+.bed-management-page .stat-available .bed-stat-value {
+  color: #16A34A;
+}
+
+.bed-management-page .stat-occupied .bed-stat-value {
+  color: #2563EB;
+}
+
+.bed-management-page .stat-maintenance .bed-stat-value {
+  color: #D97706;
+}
+
+.bed-management-page .bed-stat-label {
+  font-size: 13px;
+  color: #64748B;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+/* ---------- Sections ---------- */
+
+.bed-management-page .departments-section {
+  margin-bottom: 28px;
+}
+
+.bed-management-page .section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.bed-management-page .section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 17px;
+  font-weight: 600;
+  color: #17212B;
+  margin: 0;
+}
+
+.bed-management-page .section-title svg {
+  color: #087F5B;
+}
+
+/* ---------- Departments Grid ---------- */
+
+.bed-management-page .departments-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 18px;
+}
+
+.bed-management-page .department-card {
+  background: #FFFFFF;
+  border: 1px solid #E5EAF0;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: box-shadow 0.2s;
+}
+
+.bed-management-page .department-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
+}
+
+.bed-management-page .department-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.bed-management-page .department-name-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bed-management-page .department-icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #E6F5EF;
+  color: #087F5B;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.bed-management-page .department-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #17212B;
+  margin: 0;
+}
+
+.bed-management-page .department-total {
+  font-size: 12px;
+  color: #64748B;
+  font-weight: 500;
+}
+
+.bed-management-page .department-bar-container {
+  width: 100%;
+}
+
+.bed-management-page .department-bar {
+  display: flex;
+  height: 10px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #F1F5F9;
+}
+
+.bed-management-page .bar-segment {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.bed-management-page .bar-occupied { background: #3B82F6; }
+.bed-management-page .bar-available { background: #16A34A; }
+.bed-management-page .bar-maintenance { background: #F59E0B; }
+
+.bed-management-page .department-counts {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.bed-management-page .dept-count {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+}
+
+.bed-management-page .dept-count-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.bed-management-page .available-dot { background: #16A34A; }
+.bed-management-page .occupied-dot { background: #3B82F6; }
+.bed-management-page .maintenance-dot { background: #F59E0B; }
+
+.bed-management-page .dept-count-label {
+  color: #64748B;
+  font-weight: 500;
+}
+
+.bed-management-page .dept-count-value {
+  color: #17212B;
+  font-weight: 700;
+}
+
+.bed-management-page .btn-manage-dept {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid #E5EAF0;
+  background: #F8FAFC;
+  color: #475569;
+  border-radius: 8px;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  width: 100%;
+}
+
+.bed-management-page .btn-manage-dept:hover {
+  background: #087F5B;
+  color: #FFFFFF;
+  border-color: #087F5B;
+}
+
+/* ---------- Bed Map Section ---------- */
+
+.bed-management-page .bed-map-section {
+  margin-bottom: 12px;
+}
+
+.bed-management-page .bed-map-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.bed-management-page .bed-filter-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.bed-management-page .bed-filter-pill {
+  padding: 5px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #FFFFFF;
+  color: #64748B;
+  border: 1px solid #E5EAF0;
+}
+
+.bed-management-page .bed-filter-pill.active {
+  background: #087F5B;
+  color: #FFFFFF;
+  border-color: #087F5B;
+}
+
+.bed-management-page .bed-legend {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.bed-management-page .legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #64748B;
+  font-weight: 500;
+}
+
+.bed-management-page .legend-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.bed-management-page .legend-available { background: #16A34A; }
+.bed-management-page .legend-occupied { background: #3B82F6; }
+.bed-management-page .legend-reserved { background: #DC2626; }
+.bed-management-page .legend-maintenance { background: #F59E0B; }
+
+.bed-management-page .bed-map-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 10px;
+  background: #FFFFFF;
+  border: 1px solid #E5EAF0;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.bed-management-page .bed-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 12px 8px;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.bed-management-page .bed-cell:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.bed-management-page .bed-cell-number {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.bed-management-page .bed-cell-status {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.bed-management-page .bed-cell-patient {
+  font-size: 10px;
+  color: #475569;
+  max-width: 96px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bed-management-page .bed-available {
+  background: #DCFCE7;
+  border-color: #86EFAC;
+}
+
+.bed-management-page .bed-available .bed-cell-number { color: #15803D; }
+.bed-management-page .bed-available .bed-cell-status { color: #16A34A; }
+
+.bed-management-page .bed-occupied {
+  background: #DBEAFE;
+  border-color: #93C5FD;
+}
+
+.bed-management-page .bed-occupied .bed-cell-number { color: #1D4ED8; }
+.bed-management-page .bed-occupied .bed-cell-status { color: #2563EB; }
+
+.bed-management-page .bed-reserved {
+  background: #FEE2E2;
+  border-color: #FCA5A5;
+}
+
+.bed-management-page .bed-reserved .bed-cell-number { color: #B91C1C; }
+.bed-management-page .bed-reserved .bed-cell-status { color: #DC2626; }
+
+.bed-management-page .bed-maintenance {
+  background: #FEF3C7;
+  border-color: #FCD34D;
+}
+
+.bed-management-page .bed-maintenance .bed-cell-number { color: #92400E; }
+.bed-management-page .bed-maintenance .bed-cell-status { color: #D97706; }
+
+/* Dept Modal */
+.dept-modal-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.dept-modal-stats > div {
+  background: #F8FAFC;
+  border: 1px solid #E5EAF0;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dept-modal-stats span {
+  font-size: 11px;
+  color: #64748B;
+}
+
+.dept-modal-stats strong {
+  font-size: 18px;
+  color: #17212B;
+}
+
+.dept-modal-adjust {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dept-modal-btns {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1024px) {
+  .bed-management-page .bed-stats-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .bed-management-page .bed-stats-row {
+    grid-template-columns: 1fr;
+  }
+
+  .bed-management-page .departments-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bed-management-page .bed-map-grid {
+    grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+    padding: 14px;
+  }
+
+  .dept-modal-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+}

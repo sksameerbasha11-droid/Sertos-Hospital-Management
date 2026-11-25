@@ -1,0 +1,5 @@
+/* App-level styles - minimal, most styles in components */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}

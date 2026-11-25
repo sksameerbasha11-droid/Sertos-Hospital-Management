@@ -1,0 +1,756 @@
+/* ========================================
+   Incoming Cases Page (Scoped)
+   ======================================== */
+
+.incoming-cases-page {
+  background: #F4F7F8;
+}
+
+/* ---------- Header ---------- */
+
+.incoming-cases-page .incoming-cases-header {
+  margin-bottom: 24px;
+}
+
+.incoming-cases-page .header-title-section {
+  margin-bottom: 18px;
+}
+
+.incoming-cases-page .page-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #17212B;
+  margin: 0 0 4px 0;
+}
+
+.incoming-cases-page .page-subtitle {
+  font-size: 14px;
+  color: #64748B;
+  margin: 0;
+}
+
+.incoming-cases-page .header-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.incoming-cases-page .search-input-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 220px;
+  max-width: 380px;
+}
+
+.incoming-cases-page .search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #64748B;
+  pointer-events: none;
+}
+
+.incoming-cases-page .search-input {
+  width: 100%;
+  padding: 10px 14px 10px 40px;
+  border: 1px solid #E5EAF0;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #FFFFFF;
+  color: #17212B;
+  transition: border-color 0.2s;
+}
+
+.incoming-cases-page .search-input::placeholder {
+  color: #94A3B8;
+}
+
+.incoming-cases-page .search-input:focus {
+  border-color: #087F5B;
+  box-shadow: 0 0 0 3px rgba(8, 127, 91, 0.08);
+}
+
+.incoming-cases-page .filter-dropdown-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.incoming-cases-page .filter-icon-label {
+  color: #64748B;
+}
+
+.incoming-cases-page .filter-dropdown {
+  padding: 10px 14px;
+  border: 1px solid #E5EAF0;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #FFFFFF;
+  color: #17212B;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.incoming-cases-page .filter-dropdown:focus {
+  border-color: #087F5B;
+}
+
+/* ---------- Content Layout ---------- */
+
+.incoming-cases-page .incoming-cases-content {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 24px;
+  align-items: start;
+}
+
+/* ---------- Cases List ---------- */
+
+.incoming-cases-page .cases-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.incoming-cases-page .section-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: #17212B;
+  margin: 0;
+}
+
+.incoming-cases-page .cases-count {
+  font-size: 13px;
+  color: #64748B;
+  background: #EEF2F5;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.incoming-cases-page .cases-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.incoming-cases-page .empty-cases-box {
+  background: #FFFFFF;
+  border: 1px solid #E5EAF0;
+  border-radius: 12px;
+  padding: 36px 24px;
+  text-align: center;
+  color: #64748B;
+  font-size: 14px;
+}
+
+/* ---------- Case Card ---------- */
+
+.incoming-cases-page .case-card {
+  background: #FFFFFF;
+  border-radius: 12px;
+  border: 1px solid #E5EAF0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.incoming-cases-page .case-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
+}
+
+.incoming-cases-page .case-card.priority-critical {
+  border-left: 4px solid #DC2626;
+}
+
+.incoming-cases-page .case-card.priority-high {
+  border-left: 4px solid #F59E0B;
+}
+
+.incoming-cases-page .case-card.priority-medium {
+  border-left: 4px solid #FACC15;
+}
+
+.incoming-cases-page .case-card.priority-low {
+  border-left: 4px solid #16A34A;
+}
+
+.incoming-cases-page .case-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 0 20px;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.incoming-cases-page .case-id-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.incoming-cases-page .case-id {
+  font-size: 15px;
+  font-weight: 700;
+  color: #17212B;
+}
+
+/* Priority badges */
+
+.incoming-cases-page .priority-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.incoming-cases-page .priority-badge.priority-critical {
+  background: #FEE2E2;
+  color: #DC2626;
+}
+
+.incoming-cases-page .priority-badge.priority-high {
+  background: #FEF3C7;
+  color: #D97706;
+}
+
+.incoming-cases-page .priority-badge.priority-medium {
+  background: #FEF9C3;
+  color: #A16207;
+}
+
+.incoming-cases-page .priority-badge.priority-low {
+  background: #DCFCE7;
+  color: #16A34A;
+}
+
+/* Status badges */
+
+.incoming-cases-page .status-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.incoming-cases-page .status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.incoming-cases-page .status-badge.status-arriving {
+  background: #DCFCE7;
+  color: #16A34A;
+}
+
+.incoming-cases-page .status-badge.status-arriving .status-dot {
+  background: #16A34A;
+}
+
+.incoming-cases-page .status-badge.status-enroute {
+  background: #DBEAFE;
+  color: #2563EB;
+}
+
+.incoming-cases-page .status-badge.status-enroute .status-dot {
+  background: #2563EB;
+}
+
+.incoming-cases-page .status-badge.status-dispatched {
+  background: #F3E8FF;
+  color: #7C3AED;
+}
+
+.incoming-cases-page .status-badge.status-dispatched .status-dot {
+  background: #7C3AED;
+}
+
+.incoming-cases-page .bay-assigned-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #15803D;
+  background: #DCFCE7;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.incoming-cases-page .source-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #64748B;
+  background: #F1F5F9;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+/* Case card body */
+
+.incoming-cases-page .case-card-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 14px 20px;
+  gap: 20px;
+}
+
+.incoming-cases-page .case-info-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.incoming-cases-page .condition-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.incoming-cases-page .condition-icon {
+  color: #087F5B;
+}
+
+.incoming-cases-page .condition-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #17212B;
+}
+
+.incoming-cases-page .patient-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #64748B;
+  flex-wrap: wrap;
+}
+
+.incoming-cases-page .patient-info svg {
+  color: #94A3B8;
+}
+
+.incoming-cases-page .patient-desc {
+  color: #475569;
+}
+
+.incoming-cases-page .case-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.incoming-cases-page .meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #64748B;
+}
+
+.incoming-cases-page .meta-item svg {
+  color: #087F5B;
+}
+
+.incoming-cases-page .eta-value {
+  font-weight: 600;
+  color: #17212B;
+}
+
+/* Vitals */
+
+.incoming-cases-page .case-vitals {
+  background: #F8FAFC;
+  border: 1px solid #E5EAF0;
+  border-radius: 10px;
+  padding: 12px 16px;
+  min-width: 150px;
+}
+
+.incoming-cases-page .vitals-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #94A3B8;
+  letter-spacing: 0.5px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.incoming-cases-page .vitals-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.incoming-cases-page .vital-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.incoming-cases-page .vital-key {
+  font-size: 12px;
+  color: #64748B;
+  font-weight: 500;
+}
+
+.incoming-cases-page .vital-val {
+  font-size: 12px;
+  color: #17212B;
+  font-weight: 600;
+}
+
+/* Case card actions */
+
+.incoming-cases-page .case-card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 20px 16px 20px;
+  border-top: 1px solid #F1F5F9;
+}
+
+.incoming-cases-page .btn-prepare-bay {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid #087F5B;
+  background: #FFFFFF;
+  color: #087F5B;
+  border-radius: 8px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.incoming-cases-page .btn-prepare-bay:hover {
+  background: #087F5B;
+  color: #FFFFFF;
+}
+
+.incoming-cases-page .btn-view-details {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  background: #087F5B;
+  color: #FFFFFF;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.incoming-cases-page .btn-view-details:hover {
+  background: #065F46;
+}
+
+/* ---------- Sidebar ---------- */
+
+.incoming-cases-page .cases-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.incoming-cases-page .sidebar-card {
+  background: #FFFFFF;
+  border: 1px solid #E5EAF0;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.incoming-cases-page .sidebar-card-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #17212B;
+  margin: 0 0 16px 0;
+}
+
+/* Quick stats */
+
+.incoming-cases-page .quick-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.incoming-cases-page .quick-stat {
+  background: #F8FAFC;
+  border-radius: 10px;
+  padding: 14px;
+  text-align: center;
+  border: 1px solid #E5EAF0;
+}
+
+.incoming-cases-page .quick-stat-value {
+  font-size: 26px;
+  font-weight: 700;
+  color: #17212B;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.incoming-cases-page .quick-stat-label {
+  font-size: 12px;
+  color: #64748B;
+  font-weight: 500;
+}
+
+.incoming-cases-page .quick-stat.critical {
+  background: #FEF2F2;
+  border-color: #FECACA;
+}
+
+.incoming-cases-page .quick-stat.critical .quick-stat-value {
+  color: #DC2626;
+}
+
+.incoming-cases-page .quick-stat.arriving {
+  background: #F0FDF4;
+  border-color: #BBF7D0;
+}
+
+.incoming-cases-page .quick-stat.arriving .quick-stat-value {
+  color: #16A34A;
+}
+
+.incoming-cases-page .quick-stat.beds {
+  background: #EFF6FF;
+  border-color: #BFDBFE;
+}
+
+.incoming-cases-page .quick-stat.beds .quick-stat-value {
+  color: #2563EB;
+}
+
+/* Activity feed */
+
+.incoming-cases-page .activity-feed {
+  display: flex;
+  flex-direction: column;
+}
+
+.incoming-cases-page .activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.incoming-cases-page .activity-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.incoming-cases-page .activity-item:first-child {
+  padding-top: 0;
+}
+
+.incoming-cases-page .activity-icon-wrap {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: #F1F5F9;
+  color: #64748B;
+}
+
+.incoming-cases-page .activity-critical .activity-icon-wrap {
+  background: #FEF2F2;
+  color: #DC2626;
+}
+
+.incoming-cases-page .activity-info .activity-icon-wrap {
+  background: #EFF6FF;
+  color: #2563EB;
+}
+
+.incoming-cases-page .activity-success .activity-icon-wrap {
+  background: #F0FDF4;
+  color: #16A34A;
+}
+
+.incoming-cases-page .activity-warning .activity-icon-wrap {
+  background: #FFF7ED;
+  color: #F59E0B;
+}
+
+.incoming-cases-page .activity-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.incoming-cases-page .activity-text {
+  font-size: 13px;
+  color: #17212B;
+  margin: 0 0 2px 0;
+  line-height: 1.4;
+}
+
+.incoming-cases-page .activity-time {
+  font-size: 11px;
+  color: #94A3B8;
+  font-weight: 500;
+}
+
+/* Case Modals */
+.case-modal-summary {
+  background: #F4F7F8;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #17212B;
+}
+
+.case-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.case-detail-block {
+  background: #F8FAFC;
+  border: 1px solid #E5EAF0;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.case-detail-block .detail-k {
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: #64748B;
+}
+
+.case-detail-block .detail-v {
+  font-size: 14px;
+  font-weight: 600;
+  color: #17212B;
+}
+
+.case-detail-block .detail-sub {
+  font-size: 12px;
+  color: #64748B;
+}
+
+.case-detail-location {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #17212B;
+  background: #ECFDF5;
+  border: 1px solid #D1FAE5;
+  padding: 10px 14px;
+  border-radius: 8px;
+}
+
+.case-detail-vitals-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.case-detail-vitals-bar > div {
+  background: #FFFFFF;
+  border: 1px solid #E5EAF0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.case-detail-vitals-bar span {
+  font-size: 11px;
+  color: #64748B;
+}
+
+.case-detail-vitals-bar strong {
+  font-size: 15px;
+  color: #17212B;
+}
+
+.case-detail-notes {
+  background: #FFFBEB;
+  border: 1px solid #FEF3C7;
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.case-detail-notes h4 {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #92400E;
+  margin-bottom: 4px;
+}
+
+.case-detail-notes p {
+  font-size: 13px;
+  color: #78350F;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1100px) {
+  .incoming-cases-page .incoming-cases-content {
+    grid-template-columns: 1fr;
+  }
+
+  .incoming-cases-page .cases-sidebar {
+    flex-direction: row;
+  }
+
+  .incoming-cases-page .sidebar-card {
+    flex: 1;
+  }
+}
+
+@media (max-width: 700px) {
+  .incoming-cases-page .cases-sidebar {
+    flex-direction: column;
+  }
+
+  .incoming-cases-page .case-card-body {
+    flex-direction: column;
+  }
+
+  .incoming-cases-page .case-vitals {
+    min-width: unset;
+    width: 100%;
+  }
+
+  .case-detail-grid,
+  .case-detail-vitals-bar {
+    grid-template-columns: 1fr 1fr;
+  }
+}
