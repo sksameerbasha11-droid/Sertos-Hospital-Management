@@ -25,6 +25,7 @@ import {
   Navigation
 } from 'lucide-react'
 import { useHospital } from '../context/HospitalContext'
+import GoogleAmbulanceMap from '../components/GoogleAmbulanceMap'
 import './Dashboard.css'
 
 export default function Dashboard() {
@@ -311,46 +312,12 @@ export default function Dashboard() {
               </button>
             </div>
             <div className="map-placeholder">
-              <div className="map-content">
-                <svg viewBox="0 0 600 220" width="100%" height="220">
-                  <defs>
-                    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#E5EAF0" strokeWidth="0.5" />
-                    </pattern>
-                  </defs>
-                  <rect width="600" height="220" fill="#F8FAFB" rx="8" />
-                  <rect width="600" height="220" fill="url(#grid)" />
-
-                  {/* Road paths */}
-                  <path d="M 0 110 L 600 110" stroke="#D1D5DB" strokeWidth="3" strokeDasharray="8,4" />
-                  <path d="M 300 0 L 300 220" stroke="#D1D5DB" strokeWidth="3" strokeDasharray="8,4" />
-                  <path d="M 100 50 L 500 180" stroke="#D1D5DB" strokeWidth="2" strokeDasharray="6,3" />
-
-                  {/* Route line */}
-                  <path d="M 120 160 C 200 140, 280 100, 420 70" stroke="#087F5B" strokeWidth="3" fill="none" strokeDasharray="6,4">
-                    <animate attributeName="stroke-dashoffset" from="20" to="0" dur="1s" repeatCount="indefinite" />
-                  </path>
-
-                  {/* Ambulance 1 */}
-                  <circle cx="120" cy="160" r="10" fill="#DC2626" stroke="#fff" strokeWidth="2" />
-                  <text x="120" y="164" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold">A</text>
-                  <text x="120" y="182" textAnchor="middle" fill="#64748B" fontSize="10">SRT-1047</text>
-
-                  {/* Hospital marker */}
-                  <rect x="405" y="55" width="30" height="30" rx="6" fill="#087F5B" stroke="#fff" strokeWidth="2" />
-                  <text x="420" y="74" textAnchor="middle" fill="#fff" fontSize="12" fontWeight="bold">H</text>
-                  <text x="420" y="100" textAnchor="middle" fill="#087F5B" fontSize="10" fontWeight="600">SERTOS Hospital</text>
-
-                  {/* ETA badge */}
-                  <rect x="230" y="90" width="80" height="28" rx="14" fill="#087F5B" />
-                  <text x="270" y="108" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="600">ETA: 4 min</text>
-
-                  {/* Second ambulance */}
-                  <circle cx="480" cy="170" r="8" fill="#F59E0B" stroke="#fff" strokeWidth="2" />
-                  <text x="480" y="174" textAnchor="middle" fill="#fff" fontSize="9" fontWeight="bold">A</text>
-                  <text x="480" y="190" textAnchor="middle" fill="#64748B" fontSize="9">SRT-1046</text>
-                </svg>
-              </div>
+              <GoogleAmbulanceMap
+                cases={cases}
+                selectedCaseId={selectedCaseId}
+                onSelectCase={setSelectedCaseId}
+                height={270}
+              />
             </div>
           </div>
         </div>
@@ -726,30 +693,13 @@ export default function Dashboard() {
                   <div><span>ETA:</span> <strong style={{ color: '#DC2626' }}>{trackedCase.eta}</strong></div>
                 </div>
               )}
-              <div className="map-content">
-                <svg viewBox="0 0 680 260" width="100%" height="260">
-                  <defs>
-                    <pattern id="modalGrid" width="40" height="40" patternUnits="userSpaceOnUse">
-                      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#E5EAF0" strokeWidth="0.6" />
-                    </pattern>
-                  </defs>
-                  <rect width="680" height="260" fill="#F8FAFB" rx="8" />
-                  <rect width="680" height="260" fill="url(#modalGrid)" />
-                  <path d="M 0 130 L 680 130" stroke="#CBD5E1" strokeWidth="4" strokeDasharray="10,5" />
-                  <path d="M 340 0 L 340 260" stroke="#CBD5E1" strokeWidth="4" strokeDasharray="10,5" />
-                  <path d="M 90 195 C 210 175, 310 120, 490 80" stroke="#087F5B" strokeWidth="3.5" fill="none" strokeDasharray="6,4">
-                    <animate attributeName="stroke-dashoffset" from="20" to="0" dur="1s" repeatCount="indefinite" />
-                  </path>
-                  <circle cx="90" cy="195" r="13" fill="#DC2626" stroke="#fff" strokeWidth="2.5" />
-                  <text x="90" y="199" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="bold">A</text>
-                  <text x="90" y="220" textAnchor="middle" fill="#17212B" fontSize="11" fontWeight="600">{trackedCase?.ambulance || 'AMB-12'}</text>
-                  <rect x="475" y="62" width="34" height="34" rx="7" fill="#087F5B" stroke="#fff" strokeWidth="2.5" />
-                  <text x="492" y="84" textAnchor="middle" fill="#fff" fontSize="14" fontWeight="bold">H</text>
-                  <text x="492" y="112" textAnchor="middle" fill="#087F5B" fontSize="11" fontWeight="700">SERTOS Central Hospital</text>
-                  <rect x="260" y="108" width="110" height="30" rx="15" fill="#087F5B" />
-                  <text x="315" y="127" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="600">ETA: {trackedCase?.eta || '4 min'}</text>
-                </svg>
-              </div>
+              <GoogleAmbulanceMap
+                cases={cases}
+                selectedCaseId={trackedCase?.id}
+                onSelectCase={setSelectedCaseId}
+                height={360}
+                showControls={false}
+              />
             </div>
             <div className="sertos-modal-footer">
               <button type="button" className="sertos-btn sertos-btn-secondary" onClick={() => setActiveModal(null)}>Close</button>

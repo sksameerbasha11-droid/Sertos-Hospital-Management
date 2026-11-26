@@ -381,3 +381,37 @@
     grid-template-columns: 1fr;
   }
 }
+
+.settings-page .settings-gmap-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.settings-page .settings-secret-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.settings-page .settings-secret-toggle {
+  position: absolute;
+  right: 10px;
+  background: transparent;
+  color: #64748B;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+
+.settings-page .settings-secret-toggle:hover {
+  color: #17212B;
+}
+
+.settings-page .settings-gmap-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}

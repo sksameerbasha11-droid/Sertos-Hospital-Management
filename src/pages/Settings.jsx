@@ -12,7 +12,10 @@ import {
   Volume2,
   X,
   RefreshCw,
-  ShieldCheck
+  ShieldCheck,
+  MapPin,
+  Eye,
+  EyeOff
 } from 'lucide-react'
 import { useHospital } from '../context/HospitalContext'
 import './Settings.css'
@@ -40,9 +43,11 @@ function ToggleSwitch({ checked, onChange }) {
 }
 
 export default function Settings() {
-  const { settings, saveSettings, resetAllData, showToast } = useHospital()
+  const { settings, saveSettings, resetAllData, showToast, googleMapsApiKey, saveGoogleMapsApiKey } = useHospital()
   const [activeTab, setActiveTab] = useState('general')
   const [confirmAction, setConfirmAction] = useState(null) // 'reset' | 'clear'
+  const [mapsKeyDraft, setMapsKeyDraft] = useState(googleMapsApiKey)
+  const [showMapsKey, setShowMapsKey] = useState(false)
 
   const [generalForm, setGeneralForm] = useState({
     hospitalName: settings.hospitalName,
@@ -363,63 +368,122 @@ export default function Settings() {
         )}
 
         {activeTab === 'integrations' && (
-          <div className="settings-card">
-            <h3 className="settings-card-title">Connected Hospital & SERTOS Integrations</h3>
-            <div className="settings-toggles">
-              <div className="settings-toggle-row">
-                <div className="settings-toggle-info">
-                  <span className="settings-toggle-label">SERTOS Ambulance Telemetry Stream</span>
-                  <span className="settings-toggle-desc">Live GPS coordinates, ETA updates, and field vitals</span>
+          <>
+            <div className="settings-card">
+              <h3 className="settings-card-title"><MapPin size={18} color="#087F5B" /> Google Maps API Configuration</h3>
+              <p style={{ fontSize: 13, color: '#64748B', marginBottom: 16 }}>
+                Connect your Google Maps JavaScript API key for live Ambulance Tracking on the Dashboard. Stored locally in your browser or set via <code>VITE_GOOGLE_MAPS_API_KEY</code> in <code>.env.local</code>.
+              </p>
+              <form
+                className="settings-gmap-form"
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  const hadSdk = Boolean(window.google && window.google.maps)
+                  saveGoogleMapsApiKey(mapsKeyDraft)
+                  if (hadSdk && mapsKeyDraft.trim() !== googleMapsApiKey) {
+                    window.location.reload()
+                  }
+                }}
+              >
+                <div className="settings-field" style={{ flex: 1 }}>
+                  <label className="settings-label">Google Maps JavaScript API Key</label>
+                  <div className="settings-secret-input-wrap">
+                    <input
+                      type={showMapsKey ? 'text' : 'password'}
+                      className="settings-input"
+                      style={{ width: '100%', paddingRight: 40 }}
+                      placeholder="AIzaSy..."
+                      value={mapsKeyDraft}
+                      onChange={(e) => setMapsKeyDraft(e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      className="settings-secret-toggle"
+                      onClick={() => setShowMapsKey((p) => !p)}
+                      aria-label={showMapsKey ? 'Hide API key' : 'Show API key'}
+                    >
+                      {showMapsKey ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
                 </div>
-                <ToggleSwitch
-                  checked={integrations.sertosTelemetry}
-                  onChange={(val) => {
-                    setIntegrations((p) => ({ ...p, sertosTelemetry: val }))
-                    showToast(`SERTOS Telemetry ${val ? 'enabled' : 'paused'}`, 'info')
-                  }}
-                />
-              </div>
-              <div className="settings-toggle-row">
-                <div className="settings-toggle-info">
-                  <span className="settings-toggle-label">EHR / HL7 FHIR Sync</span>
-                  <span className="settings-toggle-desc">Bi-directional patient chart synchronization</span>
+                <div className="settings-gmap-actions">
+                  <button type="submit" className="settings-save-btn">
+                    <Save size={15} /> Save API Key
+                  </button>
+                  {googleMapsApiKey && (
+                    <button
+                      type="button"
+                      className="settings-danger-btn"
+                      onClick={() => {
+                        setMapsKeyDraft('')
+                        saveGoogleMapsApiKey('')
+                      }}
+                    >
+                      Clear Key
+                    </button>
+                  )}
                 </div>
-                <ToggleSwitch
-                  checked={integrations.hl7Fhir}
-                  onChange={(val) => {
-                    setIntegrations((p) => ({ ...p, hl7Fhir: val }))
-                    showToast(`HL7 FHIR Sync ${val ? 'enabled' : 'paused'}`, 'info')
-                  }}
-                />
-              </div>
-              <div className="settings-toggle-row">
-                <div className="settings-toggle-info">
-                  <span className="settings-toggle-label">Blood Bank Inventory Link</span>
-                  <span className="settings-toggle-desc">Low-supply alerts and trauma crossmatch status</span>
+              </form>
+            </div>
+
+            <div className="settings-card">
+              <h3 className="settings-card-title">Connected Hospital & SERTOS Integrations</h3>
+              <div className="settings-toggles">
+                <div className="settings-toggle-row">
+                  <div className="settings-toggle-info">
+                    <span className="settings-toggle-label">SERTOS Ambulance Telemetry Stream</span>
+                    <span className="settings-toggle-desc">Live GPS coordinates, ETA updates, and field vitals</span>
+                  </div>
+                  <ToggleSwitch
+                    checked={integrations.sertosTelemetry}
+                    onChange={(val) => {
+                      setIntegrations((p) => ({ ...p, sertosTelemetry: val }))
+                      showToast(`SERTOS Telemetry ${val ? 'enabled' : 'paused'}`, 'info')
+                    }}
+                  />
                 </div>
-                <ToggleSwitch
-                  checked={integrations.bloodBankSync}
-                  onChange={(val) => {
-                    setIntegrations((p) => ({ ...p, bloodBankSync: val }))
-                    showToast(`Blood Bank Link ${val ? 'enabled' : 'paused'}`, 'info')
-                  }}
-                />
-              </div>
-              <div className="settings-toggle-row">
-                <div className="settings-toggle-info">
-                  <span className="settings-toggle-label">Regional EMS Dispatch Gateway</span>
-                  <span className="settings-toggle-desc">Receive priority pre-arrival notifications from 911/EMS</span>
+                <div className="settings-toggle-row">
+                  <div className="settings-toggle-info">
+                    <span className="settings-toggle-label">EHR / HL7 FHIR Sync</span>
+                    <span className="settings-toggle-desc">Bi-directional patient chart synchronization</span>
+                  </div>
+                  <ToggleSwitch
+                    checked={integrations.hl7Fhir}
+                    onChange={(val) => {
+                      setIntegrations((p) => ({ ...p, hl7Fhir: val }))
+                      showToast(`HL7 FHIR Sync ${val ? 'enabled' : 'paused'}`, 'info')
+                    }}
+                  />
                 </div>
-                <ToggleSwitch
-                  checked={integrations.regionalDispatch}
-                  onChange={(val) => {
-                    setIntegrations((p) => ({ ...p, regionalDispatch: val }))
-                    showToast(`EMS Dispatch Gateway ${val ? 'enabled' : 'paused'}`, 'info')
-                  }}
-                />
+                <div className="settings-toggle-row">
+                  <div className="settings-toggle-info">
+                    <span className="settings-toggle-label">Blood Bank Inventory Link</span>
+                    <span className="settings-toggle-desc">Low-supply alerts and trauma crossmatch status</span>
+                  </div>
+                  <ToggleSwitch
+                    checked={integrations.bloodBankSync}
+                    onChange={(val) => {
+                      setIntegrations((p) => ({ ...p, bloodBankSync: val }))
+                      showToast(`Blood Bank Link ${val ? 'enabled' : 'paused'}`, 'info')
+                    }}
+                  />
+                </div>
+                <div className="settings-toggle-row">
+                  <div className="settings-toggle-info">
+                    <span className="settings-toggle-label">Regional EMS Dispatch Gateway</span>
+                    <span className="settings-toggle-desc">Receive priority pre-arrival notifications from 911/EMS</span>
+                  </div>
+                  <ToggleSwitch
+                    checked={integrations.regionalDispatch}
+                    onChange={(val) => {
+                      setIntegrations((p) => ({ ...p, regionalDispatch: val }))
+                      showToast(`EMS Dispatch Gateway ${val ? 'enabled' : 'paused'}`, 'info')
+                    }}
+                  />
+                </div>
               </div>
             </div>
-          </div>
+          </>
         )}
       </div>
 

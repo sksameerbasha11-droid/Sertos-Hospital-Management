@@ -2,6 +2,10 @@ import { createContext, useContext, useState } from 'react'
 
 const HospitalContext = createContext(null)
 
+export const HOSPITAL_COORDS = { lat: 40.7681, lng: -73.9647 }
+
+const GOOGLE_MAPS_STORAGE_KEY = 'sertos_google_maps_api_key'
+
 const INITIAL_SETTINGS = {
   hospitalName: 'SERTOS Central Hospital',
   hospitalCode: 'SCH-001',
@@ -39,6 +43,7 @@ const INITIAL_CASES = [
     status: 'En Route',
     source: 'Ambulance Emergency System',
     location: 'Oakridge Blvd & 5th Ave (1.8 km away)',
+    coords: { lat: 40.7615, lng: -73.9762 },
     assignedBay: null,
     vitals: { bp: '145/92', hr: 112, spo2: '96%', temp: '37.8°C' },
     notes: '12-lead ECG transmitted. Aspirin 325mg administered en route. IV access established.',
@@ -62,6 +67,7 @@ const INITIAL_CASES = [
     status: 'En Route',
     source: 'Ambulance Emergency System',
     location: 'Interstate 95 Exit 14 (4.2 km away)',
+    coords: { lat: 40.7932, lng: -73.9382 },
     assignedBay: 'B-107',
     vitals: { bp: '96/62', hr: 124, spo2: '91%', temp: '36.4°C' },
     notes: 'Cervical collar applied. Two large-bore IVs running normal saline. Trauma Team Alpha alerted.',
@@ -85,6 +91,7 @@ const INITIAL_CASES = [
     status: 'Arriving',
     source: 'Ambulance Emergency System',
     location: 'Approaching Emergency Bay Entrance',
+    coords: { lat: 40.7694, lng: -73.9612 },
     assignedBay: 'B-118',
     vitals: { bp: '148/90', hr: 108, spo2: '85%', temp: '38.1°C' },
     notes: 'High-flow O2 via non-rebreather mask at 15 L/min. Nebulized albuterol given.',
@@ -108,6 +115,7 @@ const INITIAL_CASES = [
     status: 'En Route',
     source: 'Ambulance Emergency System',
     location: 'Westside Hwy Mile 8 (7.5 km away)',
+    coords: { lat: 40.7855, lng: -73.9841 },
     assignedBay: null,
     vitals: { bp: '172/102', hr: 88, spo2: '95%', temp: '36.9°C' },
     notes: 'Last known well 40 minutes ago. Stroke protocol CT bay requested on arrival.',
@@ -131,6 +139,7 @@ const INITIAL_CASES = [
     status: 'Dispatched',
     source: 'Ambulance Emergency System',
     location: 'Downtown Plaza North (10.1 km away)',
+    coords: { lat: 40.7498, lng: -73.9879 },
     assignedBay: null,
     vitals: { bp: '116/74', hr: 96, spo2: '97%', temp: '36.8°C' },
     notes: 'IM Epinephrine 0.3mg administered. Symptoms stabilizing during transport.',
@@ -450,6 +459,30 @@ export function HospitalProvider({ children }) {
   const [toasts, setToasts] = useState([])
   // Extra delta so KPI card 3 starts at 11 (representing 11 specialists across hospital) and reflects staff status changes
   const [specialistOffset] = useState(6)
+  const [googleMapsApiKey, setGoogleMapsApiKey] = useState(() => {
+    const envKey = (import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '').trim()
+    if (envKey) return envKey
+    try {
+      return (localStorage.getItem(GOOGLE_MAPS_STORAGE_KEY) || '').trim()
+    } catch {
+      return ''
+    }
+  })
+
+  const saveGoogleMapsApiKey = (newKey) => {
+    const cleaned = newKey.trim()
+    setGoogleMapsApiKey(cleaned)
+    try {
+      if (cleaned) {
+        localStorage.setItem(GOOGLE_MAPS_STORAGE_KEY, cleaned)
+      } else {
+        localStorage.removeItem(GOOGLE_MAPS_STORAGE_KEY)
+      }
+    } catch {
+      // ignore storage failure
+    }
+    showToast(cleaned ? 'Google Maps API key saved and activated' : 'Google Maps API key cleared', cleaned ? 'success' : 'info')
+  }
 
   const showToast = (message, type = 'success') => {
     const id = Date.now() + Math.random()
@@ -712,6 +745,8 @@ export function HospitalProvider({ children }) {
         toasts,
         showToast,
         resetAllData,
+        googleMapsApiKey,
+        saveGoogleMapsApiKey,
         metrics: {
           totalBeds,
           totalBedsAvailable,

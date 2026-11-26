@@ -25,6 +25,14 @@ npm install
 npm run dev
 ```
 
+### Google Maps Setup (Optional)
+
+1. Copy `.env.example` to `.env.local` and paste your Google Maps JavaScript API key:
+   ```env
+   VITE_GOOGLE_MAPS_API_KEY=your_google_maps_api_key_here
+   ```
+2. Or enter your key directly in the app under **Settings → Integrations** or via the **Enter Google API Key** button on the Dashboard **Ambulance Tracking** panel.
+
 Build for production:
 
 ```bash
