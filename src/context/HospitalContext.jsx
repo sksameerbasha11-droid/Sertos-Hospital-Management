@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
+import {
+  fetchNearbyHospitals,
+  fetchTrafficSignals,
+  fetchRoadRoute,
+  buildRouteJunctions,
+} from '../services/geoService'
 
 const HospitalContext = createContext(null)
 
@@ -514,7 +520,12 @@ export function HospitalProvider({ children }) {
   const [specialistOffset] = useState(6)
   const [userLocation, setUserLocation] = useState(null)
   const [hospitalCoords, setHospitalCoords] = useState(HOSPITAL_COORDS)
+  const [nearbyHospitals, setNearbyHospitals] = useState([])
+  const [selectedHospital, setSelectedHospital] = useState(null)
+  const [trafficSignals, setTrafficSignals] = useState([])
+  const [overriddenJunctions, setOverriddenJunctions] = useState([])
   const [locationStatus, setLocationStatus] = useState('demo') // 'demo' | 'locating' | 'live' | 'denied'
+  const casesRef = useRef(INITIAL_CASES)
   const [googleMapsApiKey, setGoogleMapsApiKey] = useState(() => {
     const envKey = (import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '').trim()
     if (envKey) return envKey
@@ -540,29 +551,114 @@ export function HospitalProvider({ children }) {
     showToast(cleaned ? 'Google Maps API key saved and activated' : 'Google Maps API key cleared', cleaned ? 'success' : 'info')
   }
 
-  const applyUserLocation = useCallback((lat, lng) => {
-    const userPos = { lat: +lat.toFixed(6), lng: +lng.toFixed(6) }
-    const hospPos = { lat: +(lat + 0.0024).toFixed(6), lng: +(lng + 0.0028).toFixed(6) }
-    setUserLocation(userPos)
-    setHospitalCoords(hospPos)
-    setLocationStatus('live')
+  useEffect(() => {
+    casesRef.current = cases
+  }, [cases])
 
-    setCases((prev) =>
-      prev.map((c, idx) => {
+  const routeCasesToHospital = useCallback(async (destHospital, anchorCoords, signalsList) => {
+    const dest = { lat: destHospital.lat, lng: destHospital.lng }
+    setSelectedHospital(destHospital)
+    setHospitalCoords(dest)
+    setOverriddenJunctions([])
+
+    const currentCases = casesRef.current
+    const updated = await Promise.all(
+      currentCases.map(async (c, idx) => {
         const off = LOCAL_OFFSETS[idx % LOCAL_OFFSETS.length]
         const start = {
-          lat: +(hospPos.lat + off.dLat).toFixed(6),
-          lng: +(hospPos.lng + off.dLng).toFixed(6),
+          lat: +(anchorCoords.lat + off.dLat).toFixed(6),
+          lng: +(anchorCoords.lng + off.dLng).toFixed(6),
         }
-        return {
-          ...c,
-          coords: start,
-          routePath: buildLocalRoute(start, hospPos),
-          location: off.label,
+        try {
+          const road = await fetchRoadRoute(start, dest)
+          const junctions = buildRouteJunctions(road.path, road.steps, signalsList)
+          const firstStreet = road.steps.find((s) => s.streetName)?.streetName
+          return {
+            ...c,
+            coords: road.path[0] || start,
+            routePath: road.path,
+            distanceKm: road.distanceKm,
+            etaMinutes: road.durationMin,
+            eta: `${road.durationMin} minutes`,
+            location: firstStreet
+              ? `${firstStreet} (${road.distanceKm} km to ${destHospital.name})`
+              : `${road.distanceKm} km to ${destHospital.name}`,
+            junctions,
+          }
+        } catch {
+          const fallbackPath = buildLocalRoute(start, dest)
+          const junctions = buildRouteJunctions(fallbackPath, [], signalsList)
+          return {
+            ...c,
+            coords: start,
+            routePath: fallbackPath,
+            location: off.label,
+            junctions,
+          }
         }
       })
     )
+
+    setCases(updated)
   }, [])
+
+  const selectReceivingHospital = useCallback(
+    async (hospital) => {
+      if (!hospital) return
+      const anchor = userLocation || { lat: hospital.lat, lng: hospital.lng }
+      await routeCasesToHospital(hospital, anchor, trafficSignals)
+      addAlert(`Receiving hospital set to ${hospital.name}`, 'info')
+      showToast(`Routing ambulances to ${hospital.name}`)
+    },
+    [userLocation, trafficSignals, routeCasesToHospital]
+  )
+
+  const applyUserLocation = useCallback(
+    async (lat, lng, isManual = false) => {
+      const userPos = { lat: +lat.toFixed(6), lng: +lng.toFixed(6) }
+      setUserLocation(userPos)
+      setLocationStatus('live')
+
+      // Immediately place local demo fallback while real hospitals + OSRM routes load
+      const fallbackHosp = {
+        id: 'local-sertos',
+        name: 'Searching nearby hospitals...',
+        address: 'Locating nearest emergency facility',
+        lat: +(lat + 0.004).toFixed(6),
+        lng: +(lng + 0.004).toFixed(6),
+        distanceKm: 0.6,
+      }
+      setHospitalCoords({ lat: fallbackHosp.lat, lng: fallbackHosp.lng })
+
+      const [hospitals, signals] = await Promise.all([
+        fetchNearbyHospitals(lat, lng),
+        fetchTrafficSignals(lat, lng),
+      ])
+
+      setTrafficSignals(signals)
+
+      if (hospitals.length > 0) {
+        setNearbyHospitals(hospitals)
+        const nearest = hospitals[0]
+        await routeCasesToHospital(nearest, userPos, signals)
+        if (isManual) {
+          showToast(`Found ${hospitals.length} real nearby hospitals · Nearest: ${nearest.name}`)
+        }
+      } else {
+        const localFallback = {
+          id: 'local-default',
+          name: 'SERTOS Central Hospital',
+          address: `${userPos.lat.toFixed(4)}, ${userPos.lng.toFixed(4)}`,
+          lat: +(lat + 0.004).toFixed(6),
+          lng: +(lng + 0.004).toFixed(6),
+          distanceKm: 0.6,
+        }
+        setNearbyHospitals([localFallback])
+        await routeCasesToHospital(localFallback, userPos, signals)
+      }
+    },
+    [routeCasesToHospital]
+  )
 
   const requestUserLocation = useCallback(
     (manual = false) => {
@@ -575,8 +671,7 @@ export function HospitalProvider({ children }) {
       setLocationStatus('locating')
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          applyUserLocation(pos.coords.latitude, pos.coords.longitude)
-          if (manual) showToast('Map centered on your actual GPS location')
+          applyUserLocation(pos.coords.latitude, pos.coords.longitude, manual)
         },
         () => {
           setLocationStatus('denied')
@@ -593,6 +688,32 @@ export function HospitalProvider({ children }) {
   useEffect(() => {
     requestUserLocation(false)
   }, [requestUserLocation])
+
+  const toggleJunctionOverride = (junction, ambulanceCode = 'Ambulance') => {
+    setOverriddenJunctions((prev) => {
+      const exists = prev.includes(junction.id)
+      if (exists) {
+        showToast(`Released signal override at ${junction.name}`, 'info')
+        return prev.filter((id) => id !== junction.id)
+      } else {
+        addAlert(`Signal Override: ${junction.name} forced GREEN for ${ambulanceCode}`, 'success')
+        showToast(`Signal Override: ${junction.name} → GREEN`)
+        return [...prev, junction.id]
+      }
+    })
+  }
+
+  const activateGreenCorridor = (junctions, ambulanceCode = 'Ambulance') => {
+    const ids = junctions.map((j) => j.id)
+    setOverriddenJunctions((prev) => Array.from(new Set([...prev, ...ids])))
+    addAlert(`FULL GREEN CORRIDOR activated (${ids.length} junctions) for ${ambulanceCode}`, 'success')
+    showToast(`Green Corridor active across all ${ids.length} junctions for ${ambulanceCode}`)
+  }
+
+  const releaseAllSignalOverrides = () => {
+    setOverriddenJunctions([])
+    showToast('All traffic signal overrides cleared', 'info')
+  }
 
   const showToast = (message, type = 'success') => {
     const id = Date.now() + Math.random()
@@ -859,6 +980,14 @@ export function HospitalProvider({ children }) {
         saveGoogleMapsApiKey,
         userLocation,
         hospitalCoords,
+        nearbyHospitals,
+        selectedHospital,
+        selectReceivingHospital,
+        trafficSignals,
+        overriddenJunctions,
+        toggleJunctionOverride,
+        activateGreenCorridor,
+        releaseAllSignalOverrides,
         locationStatus,
         requestUserLocation,
         metrics: {

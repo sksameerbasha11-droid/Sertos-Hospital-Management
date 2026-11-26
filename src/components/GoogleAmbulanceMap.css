@@ -136,6 +136,42 @@
   border-radius: 16px;
 }
 
+/* Nearby Receiving Hospital Selector */
+.gmap-hospital-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 8px 12px;
+  background: #F0FAF6;
+  border: 1px solid #D1FAE5;
+  border-radius: 8px;
+}
+
+.gmap-hospital-bar-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #065F46;
+}
+
+.gmap-hospital-select {
+  flex: 1;
+  min-width: 220px;
+  max-width: 380px;
+  padding: 6px 10px;
+  border-radius: 7px;
+  border: 1px solid #A7F3D0;
+  background: #FFFFFF;
+  color: #17212B;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .gmap-canvas-shell {
   position: relative;
   width: 100%;
@@ -154,6 +190,37 @@
 .gmap-canvas img {
   max-width: none;
   display: inline;
+}
+
+.gmap-signal-alert-banner {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 8;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 12px;
+  border-radius: 8px;
+  background: rgba(220, 38, 38, 0.94);
+  color: #FFFFFF;
+  font-size: 12px;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35);
+  white-space: nowrap;
+}
+
+.gmap-signal-alert-banner button {
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: #16A34A;
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.gmap-signal-alert-banner button:hover {
+  background: #15803D;
 }
 
 .gmap-hospital-clock-overlay {
@@ -200,6 +267,171 @@
 
 .gmap-telemetry-item strong {
   color: #17212B;
+}
+
+/* Signal Override Console */
+.gmap-corridor-panel {
+  background: #FFFFFF;
+  border: 1px solid #E5EAF0;
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.gmap-corridor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.gmap-corridor-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #17212B;
+}
+
+.gmap-sim-badge {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #087F5B;
+  background: #ECFDF5;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.gmap-corridor-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gmap-corridor-reset-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
+  border-radius: 7px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  color: #475569;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.gmap-corridor-all-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 8px;
+  background: #087F5B;
+  color: #FFFFFF;
+  font-size: 12px;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+
+.gmap-corridor-all-btn:hover {
+  background: #065F46;
+}
+
+.gmap-corridor-all-btn.active {
+  background: #16A34A;
+}
+
+.gmap-junctions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 10px;
+}
+
+.gmap-junction-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #F8FAFC;
+  border: 1px solid #E5EAF0;
+}
+
+.gmap-junction-card.overridden {
+  background: #F0FDF4;
+  border-color: #86EFAC;
+}
+
+.gmap-junction-card.blocking {
+  background: #FEF2F2;
+  border-color: #FCA5A5;
+}
+
+.gmap-junction-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.gmap-junction-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.gmap-sig-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.gmap-sig-dot.sig-red { background: #DC2626; }
+.gmap-sig-dot.sig-amber { background: #F59E0B; }
+.gmap-sig-dot.sig-green { background: #16A34A; }
+
+.gmap-junction-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #17212B;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gmap-junction-meta {
+  font-size: 11px;
+  color: #64748B;
+}
+
+.gmap-override-btn {
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: #FFFFFF;
+  border: 1px solid #087F5B;
+  color: #087F5B;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.gmap-override-btn:hover {
+  background: #087F5B;
+  color: #FFFFFF;
+}
+
+.gmap-override-btn.active {
+  background: #16A34A;
+  border-color: #16A34A;
+  color: #FFFFFF;
 }
 
 .gmap-loading-overlay {
@@ -305,4 +537,12 @@
   font-size: 12px;
   color: #475569;
   line-height: 1.4;
+}
+
+@media (max-width: 640px) {
+  .gmap-signal-alert-banner {
+    width: 92%;
+    justify-content: space-between;
+    font-size: 11px;
+  }
 }
