@@ -52,8 +52,39 @@
 .gmap-right-controls {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
+}
+
+.gmap-action-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 16px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 600;
+  transition: all 0.15s;
+}
+
+.gmap-action-pill:hover {
+  border-color: #087F5B;
+  color: #17212B;
+}
+
+.gmap-action-pill.active-green {
+  background: #ECFDF5;
+  border-color: #A7F3D0;
+  color: #087F5B;
+}
+
+.gmap-action-pill.active-amber {
+  background: #FFFBEB;
+  border-color: #FDE68A;
+  color: #B45309;
 }
 
 .gmap-gps-btn {
@@ -123,6 +154,28 @@
 .gmap-canvas img {
   max-width: none;
   display: inline;
+}
+
+.gmap-hospital-clock-overlay {
+  position: absolute;
+  bottom: 24px;
+  left: 10px;
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid #E5EAF0;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
+  font-size: 11px;
+  color: #475569;
+  font-variant-numeric: tabular-nums;
+}
+
+.gmap-hospital-clock-overlay strong {
+  color: #17212B;
 }
 
 .gmap-telemetry-strip {

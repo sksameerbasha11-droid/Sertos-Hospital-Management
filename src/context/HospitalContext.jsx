@@ -1,10 +1,30 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 
 const HospitalContext = createContext(null)
 
 export const HOSPITAL_COORDS = { lat: 40.7681, lng: -73.9647 }
 
 const GOOGLE_MAPS_STORAGE_KEY = 'sertos_google_maps_api_key'
+
+const LOCAL_OFFSETS = [
+  { dLat: -0.011, dLng: -0.014, label: 'South-West Sector (1.8 km away)' },
+  { dLat: 0.018, dLng: 0.016, label: 'North-East Arterial (2.6 km away)' },
+  { dLat: 0.009, dLng: -0.012, label: 'North-West Approach (1.4 km away)' },
+  { dLat: -0.016, dLng: 0.015, label: 'South-East Corridor (2.4 km away)' },
+  { dLat: 0.022, dLng: -0.008, label: 'North Highway Approach (2.5 km away)' },
+]
+
+function buildLocalRoute(start, dest) {
+  const mid1 = {
+    lat: +(start.lat + (dest.lat - start.lat) * 0.45).toFixed(6),
+    lng: start.lng,
+  }
+  const mid2 = {
+    lat: +(dest.lat - (dest.lat - start.lat) * 0.15).toFixed(6),
+    lng: +(start.lng + (dest.lng - start.lng) * 0.65).toFixed(6),
+  }
+  return [start, mid1, mid2, dest]
+}
 
 const INITIAL_SETTINGS = {
   hospitalName: 'SERTOS Central Hospital',
@@ -492,6 +512,9 @@ export function HospitalProvider({ children }) {
   const [toasts, setToasts] = useState([])
   // Extra delta so KPI card 3 starts at 11 (representing 11 specialists across hospital) and reflects staff status changes
   const [specialistOffset] = useState(6)
+  const [userLocation, setUserLocation] = useState(null)
+  const [hospitalCoords, setHospitalCoords] = useState(HOSPITAL_COORDS)
+  const [locationStatus, setLocationStatus] = useState('demo') // 'demo' | 'locating' | 'live' | 'denied'
   const [googleMapsApiKey, setGoogleMapsApiKey] = useState(() => {
     const envKey = (import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '').trim()
     if (envKey) return envKey
@@ -516,6 +539,60 @@ export function HospitalProvider({ children }) {
     }
     showToast(cleaned ? 'Google Maps API key saved and activated' : 'Google Maps API key cleared', cleaned ? 'success' : 'info')
   }
+
+  const applyUserLocation = useCallback((lat, lng) => {
+    const userPos = { lat: +lat.toFixed(6), lng: +lng.toFixed(6) }
+    const hospPos = { lat: +(lat + 0.0024).toFixed(6), lng: +(lng + 0.0028).toFixed(6) }
+    setUserLocation(userPos)
+    setHospitalCoords(hospPos)
+    setLocationStatus('live')
+
+    setCases((prev) =>
+      prev.map((c, idx) => {
+        const off = LOCAL_OFFSETS[idx % LOCAL_OFFSETS.length]
+        const start = {
+          lat: +(hospPos.lat + off.dLat).toFixed(6),
+          lng: +(hospPos.lng + off.dLng).toFixed(6),
+        }
+        return {
+          ...c,
+          coords: start,
+          routePath: buildLocalRoute(start, hospPos),
+          location: off.label,
+        }
+      })
+    )
+  }, [])
+
+  const requestUserLocation = useCallback(
+    (manual = false) => {
+      if (typeof navigator === 'undefined' || !navigator.geolocation) {
+        setLocationStatus('denied')
+        if (manual) showToast('Browser geolocation is not supported', 'warning')
+        return
+      }
+
+      setLocationStatus('locating')
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          applyUserLocation(pos.coords.latitude, pos.coords.longitude)
+          if (manual) showToast('Map centered on your actual GPS location')
+        },
+        () => {
+          setLocationStatus('denied')
+          if (manual) {
+            showToast('Location access blocked — allow Location permission in your browser bar', 'warning')
+          }
+        },
+        { enableHighAccuracy: true, timeout: 9000, maximumAge: 60000 }
+      )
+    },
+    [applyUserLocation]
+  )
+
+  useEffect(() => {
+    requestUserLocation(false)
+  }, [requestUserLocation])
 
   const showToast = (message, type = 'success') => {
     const id = Date.now() + Math.random()
@@ -780,6 +857,10 @@ export function HospitalProvider({ children }) {
         resetAllData,
         googleMapsApiKey,
         saveGoogleMapsApiKey,
+        userLocation,
+        hospitalCoords,
+        locationStatus,
+        requestUserLocation,
         metrics: {
           totalBeds,
           totalBedsAvailable,

@@ -10,9 +10,11 @@ import {
   Play,
   Pause,
   Truck,
-  Clock
+  Clock,
+  LocateFixed,
+  Activity
 } from 'lucide-react'
-import { useHospital, HOSPITAL_COORDS } from '../context/HospitalContext'
+import { useHospital } from '../context/HospitalContext'
 import './GoogleAmbulanceMap.css'
 
 let loadedScriptPromise = null
@@ -72,8 +74,8 @@ function getPriorityColor(priority) {
   }
 }
 
-function interpolateAlongPath(path, progress) {
-  if (!path || path.length === 0) return HOSPITAL_COORDS
+function interpolateAlongPath(path, progress, fallback) {
+  if (!path || path.length === 0) return fallback
   if (path.length === 1 || progress <= 0) return path[0]
   if (progress >= 1) return path[path.length - 1]
 
@@ -102,31 +104,87 @@ function distanceKm(a, b) {
   return 2 * R * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s))
 }
 
-function buildAmbulanceIcon(maps, color, isSelected) {
-  const size = isSelected ? 40 : 30
+function buildAmbulanceIcon(maps, color, isSelected, unitCode) {
+  const w = isSelected ? 54 : 44
+  const h = isSelected ? 46 : 38
   return {
     url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
-      `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 40 40">
-        ${isSelected ? `<circle cx="20" cy="20" r="19" fill="${color}" fill-opacity="0.22"/>` : ''}
-        <circle cx="20" cy="20" r="${isSelected ? 14 : 13}" fill="${color}" stroke="#FFFFFF" stroke-width="${isSelected ? 3 : 2}"/>
-        <text x="20" y="24.5" text-anchor="middle" fill="#FFFFFF" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="800">A</text>
+      `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 54 46">
+        ${isSelected ? `<ellipse cx="27" cy="24" rx="25" ry="20" fill="${color}" fill-opacity="0.18"/>` : ''}
+        <!-- Siren Beacon -->
+        <rect x="20" y="3" width="10" height="4" rx="2" fill="#EF4444" stroke="#FFFFFF" stroke-width="1"/>
+        <!-- Ambulance Body -->
+        <path d="M7 13 C7 10 9 8 12 8 L33 8 L33 30 L7 30 Z" fill="#FFFFFF" stroke="${color}" stroke-width="2.2"/>
+        <!-- Front Cab -->
+        <path d="M33 13 L42 13 L47 21 L47 30 L33 30 Z" fill="#F8FAFC" stroke="${color}" stroke-width="2.2"/>
+        <!-- Windshield -->
+        <polygon points="35,15 41,15 44,21 35,21" fill="#BAE6FD"/>
+        <!-- Emergency Stripe -->
+        <rect x="8" y="23" width="38" height="3.5" fill="${color}"/>
+        <!-- Medical Cross -->
+        <rect x="18" y="11.5" width="4" height="10" rx="1" fill="#DC2626"/>
+        <rect x="15" y="14.5" width="10" height="4" rx="1" fill="#DC2626"/>
+        <!-- Wheels -->
+        <circle cx="15" cy="31" r="4.2" fill="#1E293B" stroke="#FFFFFF" stroke-width="1.5"/>
+        <circle cx="39" cy="31" r="4.2" fill="#1E293B" stroke="#FFFFFF" stroke-width="1.5"/>
+        <!-- Unit Tag -->
+        <rect x="9" y="35.5" width="36" height="10" rx="4" fill="${color}"/>
+        <text x="27" y="42.8" text-anchor="middle" fill="#FFFFFF" font-family="Inter,Arial,sans-serif" font-size="7.2" font-weight="800">${unitCode || 'AMB'}</text>
       </svg>`
     )}`,
-    scaledSize: new maps.Size(size, size),
-    anchor: new maps.Point(size / 2, size / 2),
+    scaledSize: new maps.Size(w, h),
+    anchor: new maps.Point(w / 2, h / 2),
   }
 }
 
-function buildInfoHtml(c, color) {
+function buildHospitalIcon(maps) {
+  return {
+    url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="44" height="50" viewBox="0 0 44 50">
+        <rect x="4" y="4" width="36" height="36" rx="9" fill="#087F5B" stroke="#FFFFFF" stroke-width="2.5"/>
+        <rect x="12" y="13" width="20" height="18" rx="2" fill="#FFFFFF" fill-opacity="0.16"/>
+        <rect x="19.5" y="13" width="5" height="18" rx="1" fill="#FFFFFF"/>
+        <rect x="13" y="19.5" width="18" height="5" rx="1" fill="#FFFFFF"/>
+        <polygon points="16,40 28,40 22,48" fill="#087F5B"/>
+      </svg>`
+    )}`,
+    scaledSize: new maps.Size(44, 50),
+    anchor: new maps.Point(22, 48),
+  }
+}
+
+function buildUserLocationIcon(maps) {
+  return {
+    url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 34 34">
+        <circle cx="17" cy="17" r="15" fill="#2563EB" fill-opacity="0.22"/>
+        <circle cx="17" cy="17" r="7.5" fill="#2563EB" stroke="#FFFFFF" stroke-width="2.5"/>
+      </svg>`
+    )}`,
+    scaledSize: new maps.Size(34, 34),
+    anchor: new maps.Point(17, 17),
+  }
+}
+
+function formatArrivalClock(now, etaMinutes) {
+  const arrival = new Date(now.getTime() + (etaMinutes || 4) * 60000)
+  return arrival.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+}
+
+function buildInfoHtml(c, color, now) {
+  const arrivalStr = formatArrivalClock(now, c.etaMinutes)
   return `
-    <div style="font-family:Inter,sans-serif;padding:4px 6px;min-width:200px">
+    <div style="font-family:Inter,sans-serif;padding:4px 6px;min-width:210px">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
         <strong style="color:#17212B;font-size:13px">${c.id} · ${c.ambulance}</strong>
         <span style="background:${color}20;color:${color};font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px">${c.priority}</span>
       </div>
       <div style="font-size:12px;font-weight:600;color:#087F5B;margin-top:4px">${c.condition}</div>
       <div style="font-size:11px;color:#64748B;margin-top:2px">${c.location}</div>
-      <div style="font-size:11px;color:#475569;margin-top:4px">ETA: <strong style="color:#DC2626">${c.eta}</strong> · HR ${c.vitals.hr} · SpO₂ ${c.vitals.spo2}</div>
+      <div style="font-size:11px;color:#475569;margin-top:4px">
+        ETA: <strong style="color:#DC2626">${c.eta}</strong> · Arrives ~<strong>${arrivalStr}</strong>
+      </div>
+      <div style="font-size:11px;color:#475569;margin-top:2px">HR ${c.vitals.hr} · BP ${c.vitals.bp} · SpO₂ ${c.vitals.spo2}</div>
     </div>
   `
 }
@@ -139,10 +197,21 @@ export default function GoogleAmbulanceMap({
   showControls = true,
   singleCaseMode = false,
 }) {
-  const { googleMapsApiKey, saveGoogleMapsApiKey, settings } = useHospital()
+  const {
+    googleMapsApiKey,
+    saveGoogleMapsApiKey,
+    settings,
+    userLocation,
+    hospitalCoords,
+    locationStatus,
+    requestUserLocation,
+  } = useHospital()
+
   const mapContainerRef = useRef(null)
   const mapInstanceRef = useRef(null)
   const hospitalMarkerRef = useRef(null)
+  const userMarkerRef = useRef(null)
+  const trafficLayerRef = useRef(null)
   const ambMarkersRef = useRef(new Map())
   const routePolylineRef = useRef(null)
   const routeGlowRef = useRef(null)
@@ -158,17 +227,23 @@ export default function GoogleAmbulanceMap({
   const [keyInput, setKeyInput] = useState('')
   const [viewMode, setViewMode] = useState('focus') // 'focus' | 'all'
   const [liveGps, setLiveGps] = useState(true)
+  const [showTraffic, setShowTraffic] = useState(true)
   const [gpsProgress, setGpsProgress] = useState(0)
+  const [now, setNow] = useState(() => new Date())
 
   const activeCase = cases.find((c) => c.id === selectedCaseId) || cases[0]
   const activeId = activeCase?.id || ''
 
-  // Reset GPS progress cleanly when switching active ambulance
+  // Live 1s hospital clock
+  useEffect(() => {
+    const clockTimer = setInterval(() => setNow(new Date()), 1000)
+    return () => clearInterval(clockTimer)
+  }, [])
+
   useEffect(() => {
     setGpsProgress(0)
   }, [activeId])
 
-  // Subtle live GPS movement simulation along street waypoints
   useEffect(() => {
     if (!liveGps || !googleMapsApiKey || !activeId) return
     const timer = setInterval(() => {
@@ -177,7 +252,7 @@ export default function GoogleAmbulanceMap({
     return () => clearInterval(timer)
   }, [liveGps, googleMapsApiKey, activeId])
 
-  // 1. Initialize Google Map & Hospital Marker
+  // 1. Initialize Google Map & TrafficLayer
   useEffect(() => {
     if (!googleMapsApiKey) {
       setMapReady(false)
@@ -202,7 +277,7 @@ export default function GoogleAmbulanceMap({
 
         if (!mapInstanceRef.current) {
           const map = new maps.Map(mapContainerRef.current, {
-            center: HOSPITAL_COORDS,
+            center: hospitalCoords,
             zoom: 14,
             zoomControl: true,
             cameraControl: false,
@@ -219,42 +294,7 @@ export default function GoogleAmbulanceMap({
           })
           mapInstanceRef.current = map
           infoWindowRef.current = new maps.InfoWindow()
-        }
-
-        const map = mapInstanceRef.current
-        if (!hospitalMarkerRef.current) {
-          const hospitalSvg = {
-            url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
-              `<svg xmlns="http://www.w3.org/2000/svg" width="38" height="44" viewBox="0 0 38 44">
-                <rect x="3" y="2" width="32" height="32" rx="8" fill="#087F5B" stroke="#FFFFFF" stroke-width="2.5"/>
-                <text x="19" y="24" text-anchor="middle" fill="#FFFFFF" font-family="Inter,Arial,sans-serif" font-size="16" font-weight="800">H</text>
-                <polygon points="14,34 24,34 19,42" fill="#087F5B"/>
-              </svg>`
-            )}`,
-            scaledSize: new maps.Size(38, 44),
-            anchor: new maps.Point(19, 42),
-          }
-
-          const hospitalMarker = new maps.Marker({
-            position: HOSPITAL_COORDS,
-            map,
-            title: settings.hospitalName,
-            icon: hospitalSvg,
-            zIndex: 100,
-          })
-
-          hospitalMarker.addListener('click', () => {
-            infoWindowRef.current.setContent(`
-              <div style="font-family:Inter,sans-serif;padding:4px 6px;min-width:170px">
-                <div style="font-weight:700;color:#087F5B;font-size:13px">${settings.hospitalName}</div>
-                <div style="font-size:12px;color:#475569;margin-top:2px">${settings.address}</div>
-                <div style="font-size:11px;color:#16A34A;font-weight:600;margin-top:4px">Emergency Receiving Center</div>
-              </div>
-            `)
-            infoWindowRef.current.open(map, hospitalMarker)
-          })
-
-          hospitalMarkerRef.current = hospitalMarker
+          trafficLayerRef.current = new maps.TrafficLayer()
         }
 
         setMapReady(true)
@@ -270,9 +310,73 @@ export default function GoogleAmbulanceMap({
       cancelled = true
       window.gm_authFailure = prevAuthFailure
     }
-  }, [googleMapsApiKey, settings.hospitalName, settings.address])
+  }, [googleMapsApiKey])
 
-  // 2. Sync markers, street-following route, and viewport without killing InfoWindow
+  // 2. Toggle Real-Time Google Traffic Layer
+  useEffect(() => {
+    if (!mapReady || !mapInstanceRef.current || !trafficLayerRef.current) return
+    trafficLayerRef.current.setMap(showTraffic ? mapInstanceRef.current : null)
+  }, [mapReady, showTraffic])
+
+  // 3. Sync Hospital & Actual User GPS Location Markers
+  useEffect(() => {
+    if (!mapReady || !mapInstanceRef.current || !window.google?.maps) return
+    const maps = window.google.maps
+    const map = mapInstanceRef.current
+
+    if (!hospitalMarkerRef.current) {
+      hospitalMarkerRef.current = new maps.Marker({
+        position: hospitalCoords,
+        map,
+        title: settings.hospitalName,
+        icon: buildHospitalIcon(maps),
+        zIndex: 100,
+      })
+
+      hospitalMarkerRef.current.addListener('click', () => {
+        infoWindowRef.current.setContent(`
+          <div style="font-family:Inter,sans-serif;padding:4px 6px;min-width:185px">
+            <div style="font-weight:700;color:#087F5B;font-size:13px">${settings.hospitalName}</div>
+            <div style="font-size:12px;color:#475569;margin-top:2px">${settings.address}</div>
+            <div style="font-size:11px;color:#16A34A;font-weight:600;margin-top:4px">
+              Hospital Time: ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+            </div>
+          </div>
+        `)
+        infoWindowRef.current.open(map, hospitalMarkerRef.current)
+      })
+    } else {
+      hospitalMarkerRef.current.setPosition(hospitalCoords)
+      hospitalMarkerRef.current.setTitle(settings.hospitalName)
+    }
+
+    if (userLocation) {
+      if (!userMarkerRef.current) {
+        userMarkerRef.current = new maps.Marker({
+          position: userLocation,
+          map,
+          title: 'Your Actual Location',
+          icon: buildUserLocationIcon(maps),
+          zIndex: 90,
+        })
+        userMarkerRef.current.addListener('click', () => {
+          infoWindowRef.current.setContent(`
+            <div style="font-family:Inter,sans-serif;padding:4px 6px">
+              <strong style="color:#2563EB;font-size:13px">Your Actual Location</strong>
+              <div style="font-size:11px;color:#64748B;margin-top:2px">
+                ${userLocation.lat.toFixed(4)}, ${userLocation.lng.toFixed(4)}
+              </div>
+            </div>
+          `)
+          infoWindowRef.current.open(map, userMarkerRef.current)
+        })
+      } else {
+        userMarkerRef.current.setPosition(userLocation)
+      }
+    }
+  }, [mapReady, hospitalCoords, userLocation, settings.hospitalName, settings.address])
+
+  // 4. Sync Ambulance Vehicle Markers
   useEffect(() => {
     if (!mapReady || !mapInstanceRef.current || !window.google?.maps) return
     const maps = window.google.maps
@@ -281,7 +385,6 @@ export default function GoogleAmbulanceMap({
     const visibleCases = singleCaseMode && activeCase ? [activeCase] : cases
     const visibleIds = new Set(visibleCases.map((c) => c.id))
 
-    // Remove markers no longer in visibleCases
     for (const [id, marker] of ambMarkersRef.current.entries()) {
       if (!visibleIds.has(id)) {
         marker.setMap(null)
@@ -295,7 +398,7 @@ export default function GoogleAmbulanceMap({
       const isSelected = activeId === c.id
       const livePos =
         isSelected && c.routePath
-          ? interpolateAlongPath(c.routePath, gpsProgress)
+          ? interpolateAlongPath(c.routePath, gpsProgress, c.coords)
           : c.coords
 
       let marker = ambMarkersRef.current.get(c.id)
@@ -304,27 +407,27 @@ export default function GoogleAmbulanceMap({
           position: livePos,
           map,
           title: `${c.ambulance} — ${c.id} (${c.eta})`,
-          icon: buildAmbulanceIcon(maps, color, isSelected),
+          icon: buildAmbulanceIcon(maps, color, isSelected, c.ambulance),
           zIndex: isSelected ? 95 : 50,
         })
 
         marker.addListener('click', () => {
           setViewMode('focus')
           if (onSelectCaseRef.current) onSelectCaseRef.current(c.id)
-          infoWindowRef.current.setContent(buildInfoHtml(c, color))
+          infoWindowRef.current.setContent(buildInfoHtml(c, color, new Date()))
           infoWindowRef.current.open(map, marker)
         })
 
         ambMarkersRef.current.set(c.id, marker)
       } else {
         marker.setPosition(livePos)
-        marker.setIcon(buildAmbulanceIcon(maps, color, isSelected))
+        marker.setIcon(buildAmbulanceIcon(maps, color, isSelected, c.ambulance))
         marker.setZIndex(isSelected ? 95 : 50)
       }
     })
   }, [mapReady, cases, activeId, gpsProgress, singleCaseMode, activeCase])
 
-  // 3. Draw street route & focus viewport when selected case or viewMode changes
+  // 5. Draw Street Route & Fit Viewport (including on resize / fullscreen!)
   useEffect(() => {
     if (!mapReady || !mapInstanceRef.current || !window.google?.maps) return
     const maps = window.google.maps
@@ -345,7 +448,7 @@ export default function GoogleAmbulanceMap({
 
     const drawStreetPolyline = () => {
       if (!activeCase?.coords) return
-      const path = activeCase.routePath || [activeCase.coords, HOSPITAL_COORDS]
+      const path = activeCase.routePath || [activeCase.coords, hospitalCoords]
       routeGlowRef.current = new maps.Polyline({
         path,
         geodesic: true,
@@ -383,7 +486,7 @@ export default function GoogleAmbulanceMap({
         directionsService.route(
           {
             origin: activeCase.coords,
-            destination: HOSPITAL_COORDS,
+            destination: hospitalCoords,
             travelMode: maps.TravelMode.DRIVING,
           },
           (result, status) => {
@@ -402,29 +505,43 @@ export default function GoogleAmbulanceMap({
       }
     }
 
-    // Fit map bounds cleanly based on viewMode ('focus' vs 'all')
-    const bounds = new maps.LatLngBounds()
-    bounds.extend(HOSPITAL_COORDS)
+    const fitViewport = () => {
+      const bounds = new maps.LatLngBounds()
+      bounds.extend(hospitalCoords)
+      if (userLocation) bounds.extend(userLocation)
 
-    if (viewMode === 'focus' && activeCase?.coords) {
-      const path = activeCase.routePath || [activeCase.coords]
-      path.forEach((pt) => bounds.extend(pt))
-    } else {
-      cases.forEach((c) => {
-        if (c.coords) bounds.extend(c.coords)
+      if (viewMode === 'focus' && activeCase?.coords) {
+        const path = activeCase.routePath || [activeCase.coords]
+        path.forEach((pt) => bounds.extend(pt))
+      } else {
+        cases.forEach((c) => {
+          if (c.coords) bounds.extend(c.coords)
+        })
+      }
+
+      map.fitBounds(bounds, { top: 48, right: 48, bottom: 48, left: 48 })
+      maps.event.addListenerOnce(map, 'idle', () => {
+        const z = map.getZoom()
+        if (z > 15) map.setZoom(15)
+        if (z < 12) map.setZoom(12)
       })
     }
 
-    map.fitBounds(bounds, { top: 45, right: 45, bottom: 45, left: 45 })
-    const listener = maps.event.addListenerOnce(map, 'idle', () => {
-      if (map.getZoom() > 15) map.setZoom(15)
-    })
+    fitViewport()
+
+    const handleFullscreenChange = () => {
+      setTimeout(() => {
+        maps.event.trigger(map, 'resize')
+        fitViewport()
+      }, 150)
+    }
+    document.addEventListener('fullscreenchange', handleFullscreenChange)
 
     return () => {
       cancelled = true
-      maps.event.removeListener(listener)
+      document.removeEventListener('fullscreenchange', handleFullscreenChange)
     }
-  }, [mapReady, activeId, viewMode, cases, activeCase])
+  }, [mapReady, activeId, viewMode, cases, activeCase, hospitalCoords, userLocation])
 
   const handleSaveKey = (e) => {
     e.preventDefault()
@@ -440,12 +557,18 @@ export default function GoogleAmbulanceMap({
   }
 
   const currentPos = activeCase?.routePath
-    ? interpolateAlongPath(activeCase.routePath, gpsProgress)
-    : activeCase?.coords || HOSPITAL_COORDS
-  const remainingKm = activeCase ? distanceKm(currentPos, HOSPITAL_COORDS).toFixed(2) : '0.0'
+    ? interpolateAlongPath(activeCase.routePath, gpsProgress, activeCase?.coords || hospitalCoords)
+    : activeCase?.coords || hospitalCoords
+  const remainingKm = activeCase ? distanceKm(currentPos, hospitalCoords).toFixed(2) : '0.0'
   const liveEtaMin = activeCase
     ? Math.max(1, Math.round(activeCase.etaMinutes * (1 - gpsProgress * 0.75)))
     : 0
+  const hospitalClockStr = now.toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  })
+  const arrivalTimeStr = activeCase ? formatArrivalClock(now, liveEtaMin) : '--:--'
 
   return (
     <div className="gmap-wrapper">
@@ -473,7 +596,7 @@ export default function GoogleAmbulanceMap({
                   if (onSelectCase) onSelectCase(c.id)
                   const marker = ambMarkersRef.current.get(c.id)
                   if (marker && mapInstanceRef.current && infoWindowRef.current) {
-                    infoWindowRef.current.setContent(buildInfoHtml(c, getPriorityColor(c.priority)))
+                    infoWindowRef.current.setContent(buildInfoHtml(c, getPriorityColor(c.priority), now))
                     infoWindowRef.current.open(mapInstanceRef.current, marker)
                   }
                 }}
@@ -489,17 +612,45 @@ export default function GoogleAmbulanceMap({
           </div>
 
           <div className="gmap-right-controls">
+            <button
+              type="button"
+              className={`gmap-action-pill ${locationStatus === 'live' ? 'active-green' : ''}`}
+              onClick={() => requestUserLocation(true)}
+              title="Center map on your browser's actual GPS location"
+            >
+              <LocateFixed size={12} />
+              <span>
+                {locationStatus === 'live'
+                  ? 'My Location'
+                  : locationStatus === 'locating'
+                  ? 'Locating...'
+                  : 'Use My Location'}
+              </span>
+            </button>
+
             {googleMapsApiKey && !mapError && (
-              <button
-                type="button"
-                className={`gmap-gps-btn ${liveGps ? 'active' : ''}`}
-                onClick={() => setLiveGps((p) => !p)}
-                title="Toggle live ambulance GPS simulation"
-              >
-                {liveGps ? <Pause size={12} /> : <Play size={12} />}
-                <span>{liveGps ? 'Live GPS' : 'Paused'}</span>
-              </button>
+              <>
+                <button
+                  type="button"
+                  className={`gmap-action-pill ${showTraffic ? 'active-amber' : ''}`}
+                  onClick={() => setShowTraffic((p) => !p)}
+                  title="Toggle real-time Google Maps road traffic layer"
+                >
+                  <Activity size={12} />
+                  <span>Traffic {showTraffic ? 'ON' : 'OFF'}</span>
+                </button>
+                <button
+                  type="button"
+                  className={`gmap-gps-btn ${liveGps ? 'active' : ''}`}
+                  onClick={() => setLiveGps((p) => !p)}
+                  title="Toggle live ambulance movement simulation"
+                >
+                  {liveGps ? <Pause size={12} /> : <Play size={12} />}
+                  <span>{liveGps ? 'Live GPS' : 'Paused'}</span>
+                </button>
+              </>
             )}
+
             {!googleMapsApiKey ? (
               <button
                 type="button"
@@ -527,6 +678,10 @@ export default function GoogleAmbulanceMap({
                 <span>Loading Google Maps...</span>
               </div>
             )}
+            <div className="gmap-hospital-clock-overlay">
+              <Clock size={12} color="#087F5B" />
+              <span>Hospital Time: <strong>{hospitalClockStr}</strong></span>
+            </div>
           </div>
 
           {activeCase && (
@@ -550,7 +705,8 @@ export default function GoogleAmbulanceMap({
               <div className="gmap-telemetry-item">
                 <Clock size={14} color="#DC2626" />
                 <span>
-                  Live ETA: <strong style={{ color: '#DC2626' }}>{liveEtaMin} min</strong>
+                  ETA: <strong style={{ color: '#DC2626' }}>{liveEtaMin} min</strong> · Hospital Arrival:{' '}
+                  <strong>{arrivalTimeStr}</strong>
                 </span>
               </div>
             </div>
@@ -567,7 +723,7 @@ export default function GoogleAmbulanceMap({
             <p>
               {mapError
                 ? mapError
-                : 'Add your Google Maps JavaScript API key to display interactive street routes, live ambulance markers, and directions to SERTOS Hospital.'}
+                : 'Add your Google Maps JavaScript API key to display interactive street routes, live traffic, ambulance vehicles, and hospital arrival times.'}
             </p>
             <div className="gmap-setup-actions">
               <button

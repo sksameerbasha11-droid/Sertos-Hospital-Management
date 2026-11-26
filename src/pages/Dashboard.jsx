@@ -224,9 +224,14 @@ export default function Dashboard() {
                       </div>
                     </div>
                     <div className="emergency-detail">
-                      <span className="detail-label">ETA</span>
+                      <span className="detail-label">ETA · Hospital Arrival</span>
                       <span className="detail-value eta-value">
-                        <Clock size={14} /> {primaryEmergency.eta}
+                        <Clock size={14} /> {primaryEmergency.eta} (at{' '}
+                        {new Date(Date.now() + (primaryEmergency.etaMinutes || 4) * 60000).toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                        )
                       </span>
                     </div>
                   </div>

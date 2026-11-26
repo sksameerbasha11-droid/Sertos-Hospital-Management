@@ -40,8 +40,24 @@ export default function Header({ onMenuClick }) {
   const [notifOpen, setNotifOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
   const [dutyStatus, setDutyStatus] = useState('Active Shift')
+  const [hospitalTime, setHospitalTime] = useState(() => new Date())
   const notifRef = useRef(null)
   const profileRef = useRef(null)
+
+  useEffect(() => {
+    const timer = setInterval(() => setHospitalTime(new Date()), 1000)
+    return () => clearInterval(timer)
+  }, [])
+
+  const formattedClock = hospitalTime.toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  })
+  const formattedDate = hospitalTime.toLocaleDateString([], {
+    month: 'short',
+    day: 'numeric',
+  })
 
   const page = pageTitles[location.pathname] || pageTitles['/']
   const PageIcon = page.icon
@@ -78,6 +94,12 @@ export default function Header({ onMenuClick }) {
       </div>
 
       <div className="header-right">
+        <div className="header-clock" title="Current Hospital Control Time">
+          <Clock size={14} className="header-clock-icon" />
+          <span className="header-clock-time">{formattedClock}</span>
+          <span className="header-clock-date">{formattedDate}</span>
+        </div>
+
         <button
           type="button"
           className={`header-status ${!settings.isOnline ? 'status-offline' : ''}`}
