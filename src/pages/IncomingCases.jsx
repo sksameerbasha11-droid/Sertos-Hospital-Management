@@ -22,6 +22,7 @@ import {
   MapPin
 } from 'lucide-react'
 import { useHospital } from '../context/HospitalContext'
+import GoogleAmbulanceMap from '../components/GoogleAmbulanceMap'
 import './IncomingCases.css'
 
 function getConditionIcon(type) {
@@ -409,6 +410,14 @@ export default function IncomingCases() {
                 <MapPin size={15} color="#087F5B" />
                 <span>{activeDetailCase.location}</span>
               </div>
+
+              <GoogleAmbulanceMap
+                cases={[activeDetailCase]}
+                selectedCaseId={activeDetailCase.id}
+                height={210}
+                showControls={false}
+                singleCaseMode={true}
+              />
 
               <div className="case-detail-vitals-bar">
                 <div><span>BP</span><strong>{activeDetailCase.vitals.bp} mmHg</strong></div>

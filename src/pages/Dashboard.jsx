@@ -316,7 +316,7 @@ export default function Dashboard() {
                 cases={cases}
                 selectedCaseId={selectedCaseId}
                 onSelectCase={setSelectedCaseId}
-                height={270}
+                height={310}
               />
             </div>
           </div>
@@ -673,18 +673,6 @@ export default function Dashboard() {
               </button>
             </div>
             <div className="sertos-modal-body">
-              <div className="map-modal-units">
-                {cases.slice(0, 3).map((c) => (
-                  <button
-                    type="button"
-                    key={c.id}
-                    className={`map-unit-pill ${trackedCase?.id === c.id ? 'active' : ''}`}
-                    onClick={() => setSelectedCaseId(c.id)}
-                  >
-                    <strong>{c.ambulance}</strong> · {c.id} ({c.eta})
-                  </button>
-                ))}
-              </div>
               {trackedCase && (
                 <div className="map-telemetry-bar">
                   <div><span>Case:</span> <strong>{trackedCase.id} — {trackedCase.condition}</strong></div>
@@ -698,7 +686,7 @@ export default function Dashboard() {
                 selectedCaseId={trackedCase?.id}
                 onSelectCase={setSelectedCaseId}
                 height={360}
-                showControls={false}
+                showControls={true}
               />
             </div>
             <div className="sertos-modal-footer">
